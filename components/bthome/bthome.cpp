@@ -624,8 +624,8 @@ void BTHome::start_advertising_() {
 
   // Service data (skip flags we already added)
   this->ad_[1].type = BT_DATA_SVC_DATA16;
-  this->ad_[1].data_len = this->adv_data_len_ - 3;  // Skip flags
-  this->ad_[1].data = this->adv_data_ + 4;          // Skip flags + length + type
+  this->ad_[1].data_len = this->adv_data_len_ - 5;  // Skip flags
+  this->ad_[1].data = this->adv_data_ + 5;          // Skip flags + length + type
 
   // Set up scan response data
   size_t sd_count = 0;
