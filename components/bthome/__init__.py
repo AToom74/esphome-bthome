@@ -351,7 +351,7 @@ async def to_code(config):
         # Enable Bluetooth
         zephyr_add_prj_conf("BT", True)
         zephyr_add_prj_conf("BT_BROADCASTER", True)
-        zephyr_add_prj_conf("BT_DEVICE_NAME", f'"{CORE.name}"')
+        zephyr_add_prj_conf("BT_DEVICE_NAME", CORE.name)
 
         # Enable tinycrypt for AES-CCM encryption
         zephyr_add_prj_conf("TINYCRYPT", True)
