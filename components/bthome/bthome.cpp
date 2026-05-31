@@ -653,11 +653,19 @@ void BTHome::start_advertising_() {
   sd_count++;
 
   if (!this->device_name_.empty()) {
-    this->sd_[sd_count].type = BT_DATA_NAME_COMPLETE;
-    this->sd_[sd_count].data_len = this->device_name_.length();
+    size_t name_len = this->device_name_.length();
+    // Scan response heeft max 31 bytes, naam mag max 29 bytes zijn
+    // (1 byte lengte + 1 byte type = 2 bytes overhead)
+    if (name_len > 29) {
+        name_len = 29;
+        this->sd_[sd_count].type = BT_DATA_NAME_SHORTENED;
+    } else {
+        this->sd_[sd_count].type = BT_DATA_NAME_COMPLETE;
+    }
+    this->sd_[sd_count].data_len = name_len;
     this->sd_[sd_count].data = reinterpret_cast<const uint8_t *>(this->device_name_.c_str());
     sd_count++;
-  }
+}
 
   if (this->has_manufacturer_id_) {
     // Manufacturer ID (2 bytes) + ESPHome version code (4 bytes)
