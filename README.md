@@ -2,6 +2,18 @@
 
 A custom ESPHome component that broadcasts sensor data using the [BTHome v2](https://bthome.io/) BLE protocol for seamless Home Assistant integration.
 
+> **This fork** contains fixes for nRF52/Zephyr and ESP32 (ESPHome 2026.4.x+) that are not yet 
+> merged in the [original repo](https://github.com/dz0ny/esphome-bthome).
+
+## Fixes in this fork
+
+| Issue | Fix |
+|-------|-----|
+| [#10](https://github.com/dz0ny/esphome-bthome/issues/10) | Replace `esp_timer_get_time()` with `k_uptime_get()` for nRF52/Zephyr |
+| [#11](https://github.com/dz0ny/esphome-bthome/issues/11) | Fix BLE advertisement offset for nRF52 (was 4, now 5) |
+| [#7](https://github.com/dz0ny/esphome-bthome/issues/7) | Remove `GAPEventHandler` override broken in ESPHome 2026.4.0+ |
+| [#13](https://github.com/dz0ny/esphome-bthome/issues/13) | Fix `BT_DEVICE_NAME` set without quotes in Zephyr |
+
 ## Features
 
 - **BTHome v2 Protocol** - Full compliance with the BTHome specification
