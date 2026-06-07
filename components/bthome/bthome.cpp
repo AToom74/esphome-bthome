@@ -454,8 +454,10 @@ void BTHome::build_advertisement_data_() {
     size_t ciphertext_len = 0;
 
     if (this->encrypt_payload_(plaintext, measurement_len, ciphertext, &ciphertext_len)) {
-      memcpy(this->adv_data_ + measurement_start, ciphertext, ciphertext_len);
-      pos = measurement_start + ciphertext_len;
+      size_t actual_ciphertext_len = ciphertext_len - 4;
+
+      memcpy(this->adv_data_ + measurement_start, ciphertext, actual_ciphertext_len);
+      pos = measurement_start + actual_ciphertext_len;
 
       // Add counter (4 bytes, little-endian)
       this->adv_data_[pos++] = this->counter_ & 0xFF;
@@ -463,7 +465,9 @@ void BTHome::build_advertisement_data_() {
       this->adv_data_[pos++] = (this->counter_ >> 16) & 0xFF;
       this->adv_data_[pos++] = (this->counter_ >> 24) & 0xFF;
 
-      this->counter_++;
+      // Add MIC (last 4 bytes of ciphertext output)
+      memcpy(this->adv_data_ + pos, ciphertext + actual_ciphertext_len, 4);
+      pos += 4;
     }
   }
 
