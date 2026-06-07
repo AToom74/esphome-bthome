@@ -919,7 +919,10 @@ bool BTHome::encrypt_payload_(const uint8_t *plaintext, size_t plaintext_len, ui
   bt_addr_le_t addr;
   size_t count = 1;
   bt_id_get(&addr, &count);
-  memcpy(nonce, addr.a.val, 6);
+  // Zephyr stores MAC in little-endian; nonce expects big-endian (as seen by HA)
+  for (int i = 0; i < 6; i++) {
+    nonce[i] = addr.a.val[5 - i];
+  }
 #endif
 
   nonce[6] = BTHOME_SERVICE_UUID & 0xFF;
