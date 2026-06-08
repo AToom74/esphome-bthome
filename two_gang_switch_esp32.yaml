@@ -18,7 +18,7 @@ esphome:
   friendly_name: BTHome 2-Gang Switch
 
 esp32:
-  board: seeed_xiao_esp32s3
+  board: seeed_xiao_esp32c3
   framework:
     type: esp-idf
     sdkconfig_options:
