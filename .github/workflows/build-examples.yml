@@ -1,6 +1,5 @@
 # Build ESPHome example configurations
 name: Build Examples
-
 on:
   push:
     branches: ["main"]
@@ -15,11 +14,9 @@ on:
       - '*.yaml'
       - '.github/workflows/build-examples.yml'
   workflow_dispatch:
-
 concurrency:
   group: build-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   build-esp32:
     name: Build ${{ matrix.config }}
@@ -34,20 +31,17 @@ jobs:
           - esp32_devkit_basic.yaml
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v6
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-
       - name: Cache PlatformIO
         uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-esp32-${{ hashFiles('components/**') }}
-          restore-keys: pio-esp32-
-
+          key: pio-esp32-${{ matrix.config }}-${{ hashFiles('components/**') }}
+          restore-keys: pio-esp32-${{ matrix.config }}-
       - name: Compile ${{ matrix.config }}
         run: |
           pipx run esphome compile ${{ matrix.config }} 2>&1 | tee build.log
@@ -55,7 +49,6 @@ jobs:
           echo '```' >> $GITHUB_STEP_SUMMARY
           grep -E "(RAM:|Flash:)" build.log >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
-
   build-nrf52:
     name: Build ${{ matrix.config }}
     runs-on: ubuntu-latest
@@ -66,20 +59,17 @@ jobs:
           - two_gang_switch_nrf52.yaml
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v6
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.12'
-
       - name: Cache PlatformIO
         uses: actions/cache@v4
         with:
           path: ~/.platformio
-          key: pio-nrf52-${{ hashFiles('components/**') }}
-          restore-keys: pio-nrf52-
-
+          key: pio-nrf52-${{ matrix.config }}-${{ hashFiles('components/**') }}
+          restore-keys: pio-nrf52-${{ matrix.config }}-
       - name: Compile ${{ matrix.config }}
         run: |
           pipx run esphome compile ${{ matrix.config }} 2>&1 | tee build.log
