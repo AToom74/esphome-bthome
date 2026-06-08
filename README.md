@@ -31,7 +31,7 @@ A custom ESPHome component that broadcasts sensor data using the [BTHome v2](htt
 external_components:
   - source:
       type: git
-      url: https://github.com/dz0ny/esphome-bthome
+      url: https://github.com/AToom74/esphome-bthome
       ref: main
     components: [bthome]
 
