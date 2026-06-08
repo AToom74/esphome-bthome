@@ -12,9 +12,8 @@ A custom ESPHome component that broadcasts sensor data using the [BTHome v2](htt
 | [#10](https://github.com/dz0ny/esphome-bthome/issues/10) | Replace `esp_timer_get_time()` with `k_uptime_get()` for nRF52/Zephyr |
 | [#11](https://github.com/dz0ny/esphome-bthome/issues/11) | Fix BLE advertisement offset for nRF52 (was 4, now 5) |
 | [#7](https://github.com/dz0ny/esphome-bthome/issues/7) | Remove `GAPEventHandler` override broken in ESPHome 2026.4.0+ |
-| [#13](https://github.com/dz0ny/esphome-bthome/issues/13) | Fix `BT_DEVICE_NAME` set without quotes in Zephyr 
+| [#13](https://github.com/dz0ny/esphome-bthome/issues/13) | Fix `BT_DEVICE_NAME` set without quotes in Zephyr |
 | [PR#2](https://github.com/dz0ny/esphome-bthome/pull/2) | Fix BTHome encryption: Counter must precede MIC in advertisement (`[Ciphertext] + [Counter] + [MIC]`) |
-|
 
 ## Features
 
@@ -52,12 +51,15 @@ bthome:
 
 ## Documentation
 
-Full documentation is available at **[dz0ny.github.io/esphome-bthome](https://dz0ny.github.io/esphome-bthome/)**
+The original author's documentation still applies to most general usage. Note that it describes the **upstream** version — fork-specific behavior (nRF52 advertisement offset, encryption byte order, deep sleep) is covered by the *Fixes in this fork* table above.
 
+Upstream documentation:
 - [Getting Started](https://dz0ny.github.io/esphome-bthome/getting-started/introduction/)
 - [Configuration](https://dz0ny.github.io/esphome-bthome/configuration/basic-setup/)
 - [Device Examples](https://dz0ny.github.io/esphome-bthome/devices/1-gang-pushbutton/)
 - [Sensor Reference](https://dz0ny.github.io/esphome-bthome/reference/sensor-types/)
+
+Protocol specification: [BTHome v2](https://bthome.io/).
 
 ## Supported Platforms
 
@@ -68,4 +70,4 @@ Full documentation is available at **[dz0ny.github.io/esphome-bthome](https://dz
 
 ## License
 
-MIT License - See [bthome.io](https://bthome.io/) for protocol specification.
+MIT License - see the [LICENSE](LICENSE) file for details.
