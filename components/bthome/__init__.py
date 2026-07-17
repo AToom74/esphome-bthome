@@ -228,7 +228,7 @@ CONFIG_SCHEMA = cv.All(
                 cv.Range(min=TimePeriod(milliseconds=1000), max=TimePeriod(milliseconds=10240)),
             ),
             cv.Optional(CONF_TX_POWER, default=0): validate_tx_power,
-            cv.Optional(CONF_ENCRYPTION_KEY): validate_encryption_key,
+            cv.Optional(CONF_ENCRYPTION_KEY): cv.sensitive(validate_encryption_key),
             cv.Optional(CONF_RETRANSMIT_COUNT, default=0): cv.int_range(min=0, max=10),
             cv.Optional(CONF_RETRANSMIT_INTERVAL, default="500ms"): cv.All(
                 cv.positive_time_period_milliseconds,
