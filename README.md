@@ -1,5 +1,8 @@
 # ESPHome BTHome Component
 
+# Minimum ESPHome version: 2026.7.0.
+Older versions are not supported, as this component uses cv.sensitive() for config redaction, introduced in recent ESPHome releases.
+
 A custom ESPHome component that broadcasts sensor data using the [BTHome v2](https://bthome.io/) BLE protocol for seamless Home Assistant integration.
 
 > **This fork** contains fixes for nRF52/Zephyr and ESP32 (ESPHome 2026.4.x+) that are not yet 
