@@ -98,10 +98,10 @@ For example, with 8 sensors where only 4 fit per packet:
 
 ### Receiver Compatibility
 
-The BTHome mobile app and other receivers automatically merge measurements from multiple packets by sensor type. This means:
-- All sensor values are visible in the app
+Receivers such as Home Assistant automatically merge measurements from multiple
+packets by sensor type. This means:
+- All sensor values are visible on the receiver
 - Values update as each packet arrives
-- No configuration needed on the receiver side
 
 ### Weather Station Example
 

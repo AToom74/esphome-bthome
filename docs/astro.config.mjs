@@ -1,4 +1,4 @@
-import { defineConfig } from 'astro/config';
+﻿import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 import starlightThemeNext from 'starlight-theme-next';
 import mermaid from 'astro-mermaid';
@@ -45,10 +45,6 @@ export default defineConfig({
         {
           label: 'Platforms',
           autogenerate: { directory: 'platforms' },
-        },
-        {
-          label: 'Tools',
-          autogenerate: { directory: 'tools' },
         },
         {
           label: 'Devices',
