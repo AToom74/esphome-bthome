@@ -32,27 +32,27 @@ export default defineConfig({
       sidebar: [
         {
           label: 'Getting Started',
-          autogenerate: { directory: 'getting-started' },
+          items: [{ autogenerate: { directory: 'getting-started' } }],
         },
         {
           label: 'Configuration',
-          autogenerate: { directory: 'configuration' },
+          items: [{ autogenerate: { directory: 'configuration' } }],
         },
         {
           label: 'Components',
-          autogenerate: { directory: 'components' },
+          items: [{ autogenerate: { directory: 'components' } }],
         },
         {
           label: 'Platforms',
-          autogenerate: { directory: 'platforms' },
+          items: [{ autogenerate: { directory: 'platforms' } }],
         },
         {
           label: 'Devices',
-          autogenerate: { directory: 'devices' },
+          items: [{ autogenerate: { directory: 'devices' } }],
         },
         {
           label: 'Reference',
-          autogenerate: { directory: 'reference' },
+          items: [{ autogenerate: { directory: 'reference' } }],
         },
       ],
       editLink: {
