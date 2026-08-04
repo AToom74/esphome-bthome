@@ -11,8 +11,7 @@ ESPHome BTHome Component - broadcasts sensor data over BLE using the BTHome v2 p
 ```
 /                          # ESPHome device configs (*.yaml)
 ├── components/bthome/     # Custom ESPHome component (Python + C++)
-├── docs/                  # Astro/Starlight documentation site
-└── flutter/               # BTHome Scanner companion app
+└── docs/                  # Astro/Starlight documentation site
 ```
 
 ## Build Commands
@@ -30,16 +29,6 @@ cd docs
 bun install                # Install dependencies
 bun run dev                # Development server
 bun run build              # Build for production
-```
-
-### Flutter App (in flutter/ directory)
-```bash
-cd flutter
-make help                  # Show all commands
-make deps                  # flutter pub get
-make analyze               # flutter analyze
-make build                 # Build APK (auto-bumps version)
-make icon                  # Generate app icons from icon.png
 ```
 
 ## BTHome Component Architecture
