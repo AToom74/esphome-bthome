@@ -9,6 +9,8 @@ on:
   release:
     types: [published]
   workflow_dispatch:
+permissions:
+  contents: write  # needed to upload the APK to the release
 jobs:
   build:
     runs-on: ubuntu-latest
