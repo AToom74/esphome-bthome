@@ -10,10 +10,10 @@
     "astro": "bunx --bun astro"
   },
   "dependencies": {
-    "@astrojs/starlight": "^0.37.1",
-    "astro": "^5.18.2",
-    "astro-mermaid": "^1.2.0",
+    "@astrojs/starlight": "^0.41.6",
+    "astro": "^7.1.6",
+    "astro-mermaid": "^2.1.0",
     "sharp": "^0.35.3",
-    "starlight-theme-next": "^0.3.3"
+    "starlight-theme-next": "^0.4.0"
   }
 }
