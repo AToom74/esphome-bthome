@@ -54,13 +54,12 @@ bthome:
 
 ## Documentation
 
-The original author's documentation still applies to most general usage. Note that it describes the **upstream** version — fork-specific behavior (nRF52 advertisement offset, encryption byte order, deep sleep) is covered by the *Fixes in this fork* table above.
+Full documentation for this fork, including fork-specific behavior (nRF52 advertisement offset, encryption byte order, deep sleep) covered by the *Fixes in this fork* table above, is available on this fork's docs site:
 
-Upstream documentation:
-- [Getting Started](https://dz0ny.github.io/esphome-bthome/getting-started/introduction/)
-- [Configuration](https://dz0ny.github.io/esphome-bthome/configuration/basic-setup/)
-- [Device Examples](https://dz0ny.github.io/esphome-bthome/devices/1-gang-pushbutton/)
-- [Sensor Reference](https://dz0ny.github.io/esphome-bthome/reference/sensor-types/)
+- [Getting Started](https://atoom74.github.io/esphome-bthome/getting-started/introduction/)
+- [Configuration](https://atoom74.github.io/esphome-bthome/configuration/basic-setup/)
+- [Device Examples](https://atoom74.github.io/esphome-bthome/devices/1-gang-pushbutton/)
+- [Sensor Reference](https://atoom74.github.io/esphome-bthome/reference/sensor-types/)
 
 Protocol specification: [BTHome v2](https://bthome.io/).
 
