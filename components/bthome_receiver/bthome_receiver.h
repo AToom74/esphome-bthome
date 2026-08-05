@@ -198,8 +198,9 @@ class BTHomeDevice : public Parented<BTHomeReceiverHub> {
   void add_dimmer_trigger(BTHomeDimmerTrigger *trigger) { this->dimmer_triggers_.push_back(trigger); }
 
  protected:
-  // Decrypt encrypted payload using AES-128-CCM
-  bool decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext_len, const uint8_t *mac,
+  // Decrypt encrypted payload using AES-128-CCM. `ciphertext_len` is the length of the actual
+  // ciphertext only (excluding device_info, counter, and MIC); `mic` points at the 4-byte MIC.
+  bool decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext_len, const uint8_t *mic, const uint8_t *mac,
                         uint8_t device_info, uint32_t counter, uint8_t *plaintext, size_t *plaintext_len);
 
   // Parse measurement objects from payload
