@@ -715,9 +715,11 @@ bool BTHomeDevice::parse_advertisement(const std::vector<uint8_t> &service_data)
       return false;
     }
 
-    // Ciphertext is between device_info and counter
+    // Wire format: device_info(1) + ciphertext(N) + counter(4) + MIC(4).
+    // Ciphertext runs from byte 1 up to (but excluding) the counter; the MIC is the last 4 bytes.
     const uint8_t *ciphertext = service_data.data() + 1;
-    size_t ciphertext_len = service_data.size() - 1 - 4;  // Exclude device_info and counter+MIC
+    size_t ciphertext_len = service_data.size() - 9;  // N: exclude device_info(1) + counter(4) + MIC(4)
+    const uint8_t *mic = service_data.data() + service_data.size() - 4;
 
     // Get MAC address (6 bytes)
     uint8_t mac[6];
@@ -726,7 +728,7 @@ bool BTHomeDevice::parse_advertisement(const std::vector<uint8_t> &service_data)
     }
 
     size_t plaintext_len;
-    if (!this->decrypt_payload_(ciphertext, ciphertext_len, mac, device_info, counter, decrypted_buffer,
+    if (!this->decrypt_payload_(ciphertext, ciphertext_len, mic, mac, device_info, counter, decrypted_buffer,
                                  &plaintext_len)) {
       ESP_LOGW(TAG, "Decryption failed");
       return false;
@@ -739,6 +741,14 @@ bool BTHomeDevice::parse_advertisement(const std::vector<uint8_t> &service_data)
     payload_len = plaintext_len;
     ESP_LOGV(TAG, "Decrypted %d bytes", plaintext_len);
   } else {
+    // Unencrypted packet: only accept it if this device isn't configured to require encryption.
+    // Without this check, anyone who knows the MAC address (sent in cleartext in the advertisement)
+    // could broadcast forged plaintext BTHome data and have it accepted as genuine.
+    if (this->encryption_enabled_) {
+      ESP_LOGW(TAG, "Rejecting unencrypted packet: encryption is required for this device");
+      return false;
+    }
+
     // Unencrypted: just skip device_info byte
     payload_data = service_data.data() + 1;
     payload_len = service_data.size() - 1;
@@ -749,8 +759,8 @@ bool BTHomeDevice::parse_advertisement(const std::vector<uint8_t> &service_data)
   return true;
 }
 
-bool BTHomeDevice::decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext_len, const uint8_t *mac,
-                                     uint8_t device_info, uint32_t counter, uint8_t *plaintext,
+bool BTHomeDevice::decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext_len, const uint8_t *mic,
+                                     const uint8_t *mac, uint8_t device_info, uint32_t counter, uint8_t *plaintext,
                                      size_t *plaintext_len) {
   // BTHome v2 AES-CCM decryption
   // Nonce: MAC(6) + UUID(2, little-endian) + device_info(1) + counter(4) = 13 bytes
@@ -764,22 +774,11 @@ bool BTHomeDevice::decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext
   nonce[11] = (counter >> 16) & 0xFF;
   nonce[12] = (counter >> 24) & 0xFF;
 
-  // The ciphertext_len includes the MIC (4 bytes)
-  if (ciphertext_len < 4) {
-    ESP_LOGE(TAG, "Ciphertext too short for MIC");
-    return false;
-  }
-
-  size_t actual_ciphertext_len = ciphertext_len - 4;
-  const uint8_t *mic = ciphertext + actual_ciphertext_len;
-
-  // Prepare combined buffer for mbedtls (ciphertext + tag)
-  uint8_t combined[256];
-  if (ciphertext_len > sizeof(combined)) {
+  // plaintext is written into the caller's decrypted_buffer[256]
+  if (ciphertext_len > 256) {
     ESP_LOGE(TAG, "Ciphertext too long");
     return false;
   }
-  memcpy(combined, ciphertext, ciphertext_len);
 
   mbedtls_ccm_context ctx;
   mbedtls_ccm_init(&ctx);
@@ -791,8 +790,8 @@ bool BTHomeDevice::decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext
     return false;
   }
 
-  ret = mbedtls_ccm_auth_decrypt(&ctx, actual_ciphertext_len, nonce, sizeof(nonce), nullptr, 0, ciphertext, plaintext,
-                                  mic, 4);
+  ret = mbedtls_ccm_auth_decrypt(&ctx, ciphertext_len, nonce, sizeof(nonce), nullptr, 0, ciphertext, plaintext, mic,
+                                  4);
   mbedtls_ccm_free(&ctx);
 
   if (ret != 0) {
@@ -800,7 +799,7 @@ bool BTHomeDevice::decrypt_payload_(const uint8_t *ciphertext, size_t ciphertext
     return false;
   }
 
-  *plaintext_len = actual_ciphertext_len;
+  *plaintext_len = ciphertext_len;
   return true;
 }
 
