@@ -647,8 +647,15 @@ void BTHome::start_advertising_() {
   this->ad_[1].data_len = this->adv_data_len_ - 5;  // Skip flags
   this->ad_[1].data = this->adv_data_ + 5;          // Skip flags + length + type
 
-  // Set up scan response data
+  // Set up scan response data. Zephyr's legacy scan response is capped at
+  // MAX_BLE_ADVERTISEMENT_SIZE (31) bytes total; exceeding it makes bt_le_adv_start() fail
+  // outright with -EINVAL and advertising never starts at all (no partial/best-effort result).
+  // So: add the fixed-size fields first, track how many bytes they actually use on the wire
+  // (1 length byte + 1 type byte + data_len per AD structure), and size the device name --
+  // the only variable-length field -- against whatever room is left, mirroring the ESP32 scan
+  // response builder above.
   size_t sd_count = 0;
+  size_t sd_bytes = 0;
 
   // Add BTHome service UUID to scan response
   static uint8_t svc_uuid_data[] = {BTHOME_SERVICE_UUID & 0xFF, (BTHOME_SERVICE_UUID >> 8) & 0xFF};
@@ -656,6 +663,7 @@ void BTHome::start_advertising_() {
   this->sd_[sd_count].data_len = sizeof(svc_uuid_data);
   this->sd_[sd_count].data = svc_uuid_data;
   sd_count++;
+  sd_bytes += 2 + sizeof(svc_uuid_data);
 
   // Add TX Power Level
   static int8_t tx_power_data;
@@ -664,6 +672,7 @@ void BTHome::start_advertising_() {
   this->sd_[sd_count].data_len = sizeof(tx_power_data);
   this->sd_[sd_count].data = reinterpret_cast<const uint8_t *>(&tx_power_data);
   sd_count++;
+  sd_bytes += 2 + sizeof(tx_power_data);
 
   // Add Appearance (Generic Sensor = 0x0540)
   static uint8_t appearance_data[] = {0x40, 0x05};  // Little-endian 0x0540
@@ -671,21 +680,7 @@ void BTHome::start_advertising_() {
   this->sd_[sd_count].data_len = sizeof(appearance_data);
   this->sd_[sd_count].data = appearance_data;
   sd_count++;
-
-  if (!this->device_name_.empty()) {
-    size_t name_len = this->device_name_.length();
-    // Scan response heeft max 31 bytes, naam mag max 29 bytes zijn
-    // (1 byte lengte + 1 byte type = 2 bytes overhead)
-    if (name_len > 29) {
-        name_len = 29;
-        this->sd_[sd_count].type = BT_DATA_NAME_SHORTENED;
-    } else {
-        this->sd_[sd_count].type = BT_DATA_NAME_COMPLETE;
-    }
-    this->sd_[sd_count].data_len = name_len;
-    this->sd_[sd_count].data = reinterpret_cast<const uint8_t *>(this->device_name_.c_str());
-    sd_count++;
-}
+  sd_bytes += 2 + sizeof(appearance_data);
 
   if (this->has_manufacturer_id_) {
     // Manufacturer ID (2 bytes) + ESPHome version code (4 bytes)
@@ -701,6 +696,23 @@ void BTHome::start_advertising_() {
     this->sd_[sd_count].data_len = sizeof(mfr_data);
     this->sd_[sd_count].data = mfr_data;
     sd_count++;
+    sd_bytes += 2 + sizeof(mfr_data);
+  }
+
+  // Device name goes last and is clipped to whatever room remains after the fixed-size fields
+  // above, instead of a hardcoded budget that ignores them (which let long names push the total
+  // past 31 bytes and silently kill advertising).
+  if (!this->device_name_.empty() && sd_bytes + 2 < MAX_BLE_ADVERTISEMENT_SIZE) {
+    size_t max_name_len = MAX_BLE_ADVERTISEMENT_SIZE - sd_bytes - 2;
+    size_t name_len = std::min(this->device_name_.length(), max_name_len);
+    if (name_len > 0) {
+      this->sd_[sd_count].type =
+          (name_len < this->device_name_.length()) ? BT_DATA_NAME_SHORTENED : BT_DATA_NAME_COMPLETE;
+      this->sd_[sd_count].data_len = name_len;
+      this->sd_[sd_count].data = reinterpret_cast<const uint8_t *>(this->device_name_.c_str());
+      sd_count++;
+      sd_bytes += 2 + name_len;
+    }
   }
 
   int err = bt_le_adv_start(&this->adv_param_, this->ad_, 2,
