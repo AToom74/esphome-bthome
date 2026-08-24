@@ -17,11 +17,12 @@
 esphome:
   name: bthome-2gang-nrf52
   friendly_name: BTHome 2-Gang Switch
-  platformio_options:
-    board_build.mcu: nrf52840
 
 nrf52:
   board: xiao_ble
+  # Native nRF Connect SDK (Zephyr) toolchain. The 'platformio' toolchain is
+  # deprecated as of ESPHome 2026.8.0 and will be removed in 2027.2.0.
+  toolchain: sdk-nrf
   # Bootloader options: adafruit, adafruit_nrf52_sd132, adafruit_nrf52_sd140_v6
   bootloader: adafruit
 
