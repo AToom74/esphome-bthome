@@ -485,7 +485,7 @@ void BTHome::build_advertisement_data_() {
       this->adv_data_[pos++] = (this->counter_ >> 16) & 0xFF;
       this->adv_data_[pos++] = (this->counter_ >> 24) & 0xFF;
 
-      // Build_advertisement_data_ — encryptie
+      // Add MIC (last 4 bytes of ciphertext output)
       memcpy(this->adv_data_ + pos, ciphertext + actual_ciphertext_len, 4);
       pos += 4;
       this->counter_++;
