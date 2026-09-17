@@ -20,7 +20,7 @@ concurrency:
 permissions:
   contents: read
 jobs:
-    build-esp32:
+  build-esp32:
     name: Build ${{ matrix.config }}
     runs-on: ubuntu-latest
     strategy:
