@@ -23,8 +23,7 @@ nrf52:
   # Native nRF Connect SDK (Zephyr) toolchain. The 'platformio' toolchain is
   # deprecated as of ESPHome 2026.8.0 and will be removed in 2027.2.0.
   toolchain: sdk-nrf
-  # Bootloader options: adafruit, adafruit_nrf52_sd132, adafruit_nrf52_sd140_v6
-  bootloader: adafruit
+  # Bootloader options: adafruit, adafruit_nrf52_sd132, adafruit_nrf52_sd140_v7. Depends on board, check INFO_UF2.TXT
 
 logger:
 
