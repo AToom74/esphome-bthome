@@ -11,6 +11,7 @@
 // Platform-specific includes
 #ifdef USE_ESP32
   #ifdef USE_BTHOME_NIMBLE
+    #include "nimble/nimble_port.h"
     #include "nimble/nimble_port_freertos.h"
     #include "host/ble_hs.h"
     #include "host/util/util.h"
