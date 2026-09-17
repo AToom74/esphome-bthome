@@ -354,6 +354,14 @@ void BTHome::build_advertisement_data_() {
   }
   this->adv_data_[pos++] = device_info;
 
+  // When encryption is enabled, the plaintext measurement region is followed by an
+  // unencrypted 4-byte counter and a 4-byte MIC (see the encryption handling below).
+  // Reserve that space up front so measurement selection/encoding never fills the
+  // packet so full that appending them would overflow adv_data_.
+  static const size_t ENCRYPTION_OVERHEAD = 4 /* counter */ + 4 /* MIC */;
+  const size_t max_payload_size =
+      this->encryption_enabled_ ? MAX_BLE_ADVERTISEMENT_SIZE - ENCRYPTION_OVERHEAD : MAX_BLE_ADVERTISEMENT_SIZE;
+
   size_t measurement_start = pos;
 
   // Packet ID (object 0x00) - helps receivers deduplicate retransmissions
@@ -368,7 +376,7 @@ void BTHome::build_advertisement_data_() {
     if (this->immediate_adv_is_binary_) {
       auto &measurement = this->binary_measurements_[this->immediate_adv_measurement_index_];
       if (measurement.sensor->has_state()) {
-        pos += this->encode_binary_measurement_(this->adv_data_ + pos, MAX_BLE_ADVERTISEMENT_SIZE - pos,
+        pos += this->encode_binary_measurement_(this->adv_data_ + pos, max_payload_size - pos,
                                                  measurement.object_id, measurement.sensor->state);
       }
     }
@@ -377,7 +385,7 @@ void BTHome::build_advertisement_data_() {
     if (!this->immediate_adv_is_binary_) {
       auto &measurement = this->measurements_[this->immediate_adv_measurement_index_];
       if (measurement.sensor->has_state() && !std::isnan(measurement.sensor->state)) {
-        pos += this->encode_measurement_(this->adv_data_ + pos, MAX_BLE_ADVERTISEMENT_SIZE - pos, measurement);
+        pos += this->encode_measurement_(this->adv_data_ + pos, max_payload_size - pos, measurement);
       }
     }
 #endif
@@ -427,7 +435,7 @@ void BTHome::build_advertisement_data_() {
         size_t idx = (start_idx + i) % n;
         if (!entries[idx].valid)
           continue;
-        if (probe_pos + entries[idx].size > MAX_BLE_ADVERTISEMENT_SIZE)
+        if (probe_pos + entries[idx].size > max_payload_size)
           break;
         probe_pos += entries[idx].size;
         selected[selected_count++] = idx;
@@ -448,12 +456,12 @@ void BTHome::build_advertisement_data_() {
         if (e.is_binary) {
 #ifdef USE_BINARY_SENSOR
           const auto &m = this->binary_measurements_[e.idx];
-          pos += this->encode_binary_measurement_(this->adv_data_ + pos, MAX_BLE_ADVERTISEMENT_SIZE - pos,
+          pos += this->encode_binary_measurement_(this->adv_data_ + pos, max_payload_size - pos,
                                                    m.object_id, m.sensor->state);
 #endif
         } else {
 #ifdef USE_SENSOR
-          pos += this->encode_measurement_(this->adv_data_ + pos, MAX_BLE_ADVERTISEMENT_SIZE - pos,
+          pos += this->encode_measurement_(this->adv_data_ + pos, max_payload_size - pos,
                                             this->measurements_[e.idx]);
 #endif
         }
