@@ -20,7 +20,7 @@ concurrency:
 permissions:
   contents: read
 jobs:
-  build-esp32:
+    build-esp32:
     name: Build ${{ matrix.config }}
     runs-on: ubuntu-latest
     strategy:
@@ -31,6 +31,9 @@ jobs:
           - cpu_temp_esp32_nimble.yaml
           - two_gang_switch_esp32.yaml
           - esp32_devkit_basic.yaml
+          - bthome_receiver_bluedroid.yaml
+          - bthome_receiver_nimble.yaml
+          - cpu_temp_receiver.yaml
     steps:
       - name: Checkout
         uses: actions/checkout@v6
@@ -38,6 +41,12 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.12'
+      - name: Dummy secrets for CI
+        run: |
+          cat > secrets.yaml <<'EOF'
+          wifi_ssid: "ci-dummy"
+          wifi_password: "ci-dummy-password"
+          EOF
       - name: Cache PlatformIO
         uses: actions/cache@v4
         with:
