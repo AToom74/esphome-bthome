@@ -317,12 +317,17 @@ async def to_code(config):
 
     # Platform-specific setup
     if CORE.is_esp32:
-        from esphome.components.esp32 import add_idf_sdkconfig_option
+        from esphome.components.esp32 import add_idf_sdkconfig_option, include_builtin_idf_component
 
         ble_stack = config.get(CONF_BLE_STACK, BLE_STACK_BLUEDROID)
 
         if ble_stack == BLE_STACK_NIMBLE:
             # NimBLE stack - lighter weight (~170KB flash, ~100KB RAM savings)
+            # Since ESPHome 2026.9.0, the "bt" IDF component (and esp_nimble_hci.h,
+            # esp_bt.h etc.) is excluded from the build unless explicitly requested.
+            # Unlike the Bluedroid path, NimBLE doesn't go through esp32_ble, which
+            # would normally request it, so request it here.
+            include_builtin_idf_component("bt")
             cg.add_define("USE_BTHOME_NIMBLE")
             add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
             add_idf_sdkconfig_option("CONFIG_BT_NIMBLE_ENABLED", True)

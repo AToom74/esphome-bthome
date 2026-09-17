@@ -28,7 +28,10 @@ external_components:
     path: components
   components: [ bthome ]
 
-# NOTE: No esp32_ble component - NimBLE is standalone
+# NOTE: No esp32_ble component - NimBLE is standalone.
+# The bthome component itself requests the IDF "bt" component when
+# ble_stack: nimble is set (needed since ESPHome 2026.9.0's stricter
+# default IDF component exclusion list).
 
 # Deep sleep: awake 30s, sleep 5 minutes
 deep_sleep:
