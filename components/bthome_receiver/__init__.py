@@ -21,7 +21,7 @@ from esphome.const import (
 )
 from esphome import automation
 from esphome.core import CORE
-from esphome.components.esp32 import add_idf_sdkconfig_option
+from esphome.components.esp32 import add_idf_sdkconfig_option, include_builtin_idf_component
 
 CODEOWNERS = ["@esphome/core"]
 AUTO_LOAD = ["sensor", "binary_sensor", "text_sensor"]
@@ -260,6 +260,12 @@ async def to_code(config):
     if ble_stack == BLE_STACK_NIMBLE:
         # NimBLE stack configuration
         cg.add_define("USE_BTHOME_RECEIVER_NIMBLE")
+
+        # Since ESPHome 2026.9.0, the "bt" IDF component (and esp_nimble_hci.h,
+        # host/ble_hs.h etc.) is excluded from the build unless explicitly requested.
+        # Unlike the Bluedroid path, NimBLE doesn't go through esp32_ble_tracker, which
+        # would normally request it, so request it here.
+        include_builtin_idf_component("bt")
 
         # Enable NimBLE in ESP-IDF
         add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
