@@ -1,0 +1,44 @@
+# .github/workflows/cleanup-runs.yml
+name: Opruimen oude workflow runs
+
+on:
+  schedule:
+    - cron: "0 4 * * 1"   # elke maandag 04:00 UTC
+  workflow_dispatch: {}     # of handmatig starten via de Actions-tab
+
+jobs:
+  cleanup:
+    name: Verwijder oude runs
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write       # nodig om runs te mogen verwijderen
+    steps:
+      - name: Verwijder runs ouder dan 14 dagen
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const KEEP_DAYS = 14;
+            const cutoff = Date.now() - KEEP_DAYS * 24 * 60 * 60 * 1000;
+            let deleted = 0, page = 1;
+            while (true) {
+              const runs = await github.rest.actions.listWorkflowRunsForRepo({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                per_page: 100,
+                page: page,
+              });
+              if (runs.data.workflow_runs.length === 0) break;
+              for (const run of runs.data.workflow_runs) {
+                if (Date.parse(run.created_at) < cutoff) {
+                  await github.rest.actions.deleteWorkflowRun({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    run_id: run.id,
+                  });
+                  deleted++;
+                }
+              }
+              if (runs.data.workflow_runs.length < 100) break;
+              page++;
+            }
+            console.log(`${deleted} oude runs verwijderd.`);
