@@ -359,6 +359,14 @@ async def to_code(config):
         zephyr_add_prj_conf("BT_DEVICE_NAME", CORE.name)
 
         # Enable tinycrypt for AES-CCM encryption
+        # Since ESPHome 2026.11 sdk-nrf is a native toolchain that only fetches
+        # the west projects components ask for, so request tinycrypt explicitly.
+        try:
+            from esphome.components.nrf52.framework import include_west_project
+
+            include_west_project("tinycrypt")
+        except ImportError:
+            pass  # Older ESPHome: full SDK checkout already includes tinycrypt
         zephyr_add_prj_conf("TINYCRYPT", True)
         zephyr_add_prj_conf("TINYCRYPT_AES", True)
         zephyr_add_prj_conf("TINYCRYPT_AES_CCM", True)
