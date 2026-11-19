@@ -52,7 +52,7 @@ CONFIG_SCHEMA = cv.All(
     )
     .extend(cv.polling_component_schema("never")),
     cv.has_at_most_one_key(CONF_PAGES, CONF_LAMBDA),
-    cv.only_with_esp_idf,
+    cv.only_with_framework("esp-idf"),
 )
 
 
