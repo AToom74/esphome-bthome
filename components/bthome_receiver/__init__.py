@@ -247,6 +247,19 @@ CONFIG_SCHEMA = cv.All(
 )
 
 
+def _require_mbedtls_ccm():
+    """Keep mbedTLS AES-CCM, needed for BTHome decryption.
+
+    Since ESPHome 2026.11, CONFIG_MBEDTLS_CCM_C is disabled by default to save
+    flash unless a component asks for it. Older releases have it on already.
+    """
+    try:
+        from esphome.components.esp32 import require_mbedtls_tls_extras
+    except ImportError:
+        return
+    require_mbedtls_tls_extras({"CONFIG_MBEDTLS_CCM_C"})
+
+
 async def to_code(config):
     var = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(var, config)
@@ -254,6 +267,9 @@ async def to_code(config):
     # Set dump interval for periodic summary (0 = disabled)
     if CONF_DUMP_INTERVAL in config:
         cg.add(var.set_dump_interval(config[CONF_DUMP_INTERVAL]))
+
+    # Both BLE stacks decrypt with mbedTLS AES-CCM
+    _require_mbedtls_ccm()
 
     ble_stack = config.get(CONF_BLE_STACK, BLE_STACK_BLUEDROID)
 

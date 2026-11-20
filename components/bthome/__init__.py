@@ -260,6 +260,19 @@ CONFIG_SCHEMA = cv.All(
 FINAL_VALIDATE_SCHEMA = _final_validate
 
 
+def _require_mbedtls_ccm():
+    """Keep mbedTLS AES-CCM, needed for BTHome encryption.
+
+    Since ESPHome 2026.11, CONFIG_MBEDTLS_CCM_C is disabled by default to save
+    flash unless a component asks for it. Older releases have it on already.
+    """
+    try:
+        from esphome.components.esp32 import require_mbedtls_tls_extras
+    except ImportError:
+        return
+    require_mbedtls_tls_extras({"CONFIG_MBEDTLS_CCM_C"})
+
+
 async def to_code(config):
     # Calculate sizes for StaticVector compile-time allocation
     num_sensors = max(1, len(config.get(CONF_SENSORS, [])))
@@ -349,6 +362,7 @@ async def to_code(config):
             add_idf_sdkconfig_option("CONFIG_BT_ENABLED", True)
             add_idf_sdkconfig_option("CONFIG_BT_BLUEDROID_ENABLED", True)
             add_idf_sdkconfig_option("CONFIG_BT_BLE_42_FEATURES_SUPPORTED", True)
+            _require_mbedtls_ccm()
 
     elif CORE.is_nrf52:
         from esphome.components.zephyr import zephyr_add_prj_conf
@@ -359,6 +373,14 @@ async def to_code(config):
         zephyr_add_prj_conf("BT_DEVICE_NAME", CORE.name)
 
         # Enable tinycrypt for AES-CCM encryption
+        # Since ESPHome 2026.11 sdk-nrf is a native toolchain that only fetches
+        # the west projects components ask for, so request tinycrypt explicitly.
+        try:
+            from esphome.components.nrf52.framework import include_west_project
+
+            include_west_project("tinycrypt")
+        except ImportError:
+            pass  # Older ESPHome: full SDK checkout already includes tinycrypt
         zephyr_add_prj_conf("TINYCRYPT", True)
         zephyr_add_prj_conf("TINYCRYPT_AES", True)
         zephyr_add_prj_conf("TINYCRYPT_AES_CCM", True)

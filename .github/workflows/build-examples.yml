@@ -6,12 +6,14 @@ on:
     paths:
       - 'components/**'
       - '*.yaml'
+      - 'packages/**'
       - '.github/workflows/build-examples.yml'
   pull_request:
     branches: ["main"]
     paths:
       - 'components/**'
       - '*.yaml'
+      - 'packages/**'
       - '.github/workflows/build-examples.yml'
   workflow_dispatch:
 concurrency:
@@ -34,6 +36,7 @@ jobs:
           - bthome_receiver_bluedroid.yaml
           - bthome_receiver_nimble.yaml
           - cpu_temp_receiver.yaml
+          - weather_display_t5_47.yaml
     steps:
       - name: Checkout
         uses: actions/checkout@v6
