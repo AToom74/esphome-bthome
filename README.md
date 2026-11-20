@@ -5,19 +5,6 @@ A custom ESPHome component that broadcasts sensor data using the [BTHome v2](htt
 ### Minimum ESPHome version: 2026.7.0.
 Older versions are not supported, as this component uses cv.sensitive() for config redaction, introduced in recent ESPHome releases.
 
-> **This fork** contains fixes for nRF52/Zephyr and ESP32 (ESPHome 2026.4.x+) that are not yet 
-> merged in the [original repo](https://github.com/dz0ny/esphome-bthome).
-
-## Fixes in this fork
-
-| Issue | Fix |
-|-------|-----|
-| [#10](https://github.com/dz0ny/esphome-bthome/issues/10) | Replace `esp_timer_get_time()` with `k_uptime_get()` for nRF52/Zephyr |
-| [#11](https://github.com/dz0ny/esphome-bthome/issues/11) | Fix BLE advertisement offset for nRF52 (was 4, now 5) |
-| [#7](https://github.com/dz0ny/esphome-bthome/issues/7) | Remove `GAPEventHandler` override broken in ESPHome 2026.4.0+ |
-| [#13](https://github.com/dz0ny/esphome-bthome/issues/13) | Fix `BT_DEVICE_NAME` set without quotes in Zephyr |
-| [PR#2](https://github.com/dz0ny/esphome-bthome/pull/2) | Fix BTHome encryption: Counter must precede MIC in advertisement (`[Ciphertext] + [Counter] + [MIC]`) |
-
 ## Features
 
 - **BTHome v2 Protocol** - Full compliance with the BTHome specification
